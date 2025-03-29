@@ -16,7 +16,7 @@ namespace Prolab_4
             InitializeComponent();
             HaritaAyarla();
             DurakEkle();
-            
+
         }
 
         private DurakService durakService = new DurakService();
@@ -61,7 +61,6 @@ namespace Prolab_4
             gMapControl1.ShowCenter = false;
         }
 
-
-        
+       
     }
 }
