@@ -32,12 +32,13 @@
             label1 = new Label();
             label2 = new Label();
             label3 = new Label();
-            comboBox1 = new ComboBox();
-            comboBox2 = new ComboBox();
-            comboBox3 = new ComboBox();
+            cmbKartDurumu = new ComboBox();
+            cmbHedef = new ComboBox();
+            cmbBaslangic = new ComboBox();
             button1 = new Button();
             label4 = new Label();
             dataGridView1 = new DataGridView();
+            btnKonumSifirla = new Button();
             ((System.ComponentModel.ISupportInitialize)dataGridView1).BeginInit();
             SuspendLayout();
             // 
@@ -94,41 +95,39 @@
             label3.TabIndex = 6;
             label3.Text = "Konumunuz \r\n(Harita üzerinden de seçebilirsiniz) : ";
             // 
-            // comboBox1
+            // cmbKartDurumu
             // 
-            comboBox1.FormattingEnabled = true;
-            comboBox1.Items.AddRange(new object[] { "Normal ", "Öğrenci", "65+" });
-            comboBox1.Location = new Point(201, 302);
-            comboBox1.Name = "comboBox1";
-            comboBox1.Size = new Size(151, 28);
-            comboBox1.TabIndex = 7;
+            cmbKartDurumu.FormattingEnabled = true;
+            cmbKartDurumu.Location = new Point(201, 302);
+            cmbKartDurumu.Name = "cmbKartDurumu";
+            cmbKartDurumu.Size = new Size(151, 28);
+            cmbKartDurumu.TabIndex = 7;
             // 
-            // comboBox2
+            // cmbHedef
             // 
-            comboBox2.FormattingEnabled = true;
-            comboBox2.Items.AddRange(new object[] { "Otogar", "Yahya Kaptan", "Umuttepe", "Sekapark", "Symbol" });
-            comboBox2.Location = new Point(300, 222);
-            comboBox2.Name = "comboBox2";
-            comboBox2.Size = new Size(151, 28);
-            comboBox2.TabIndex = 8;
+            cmbHedef.FormattingEnabled = true;
+            cmbHedef.Location = new Point(300, 222);
+            cmbHedef.Name = "cmbHedef";
+            cmbHedef.Size = new Size(151, 28);
+            cmbHedef.TabIndex = 8;
             // 
-            // comboBox3
+            // cmbBaslangic
             // 
-            comboBox3.FormattingEnabled = true;
-            comboBox3.Items.AddRange(new object[] { "Otogar", "Yahya Kaptan", "Umuttepe", "Sekapark", "Symbol" });
-            comboBox3.Location = new Point(299, 127);
-            comboBox3.Name = "comboBox3";
-            comboBox3.Size = new Size(151, 28);
-            comboBox3.TabIndex = 9;
+            cmbBaslangic.FormattingEnabled = true;
+            cmbBaslangic.Location = new Point(299, 127);
+            cmbBaslangic.Name = "cmbBaslangic";
+            cmbBaslangic.Size = new Size(151, 28);
+            cmbBaslangic.TabIndex = 9;
             // 
             // button1
             // 
-            button1.Location = new Point(94, 402);
+            button1.Location = new Point(234, 399);
             button1.Name = "button1";
-            button1.Size = new Size(233, 58);
+            button1.Size = new Size(196, 60);
             button1.TabIndex = 10;
             button1.Text = "Rota Oluştur";
             button1.UseVisualStyleBackColor = true;
+            button1.Click += button1_Click;
             // 
             // label4
             // 
@@ -149,24 +148,36 @@
             dataGridView1.Size = new Size(1299, 292);
             dataGridView1.TabIndex = 12;
             // 
+            // btnKonumSifirla
+            // 
+            btnKonumSifirla.Location = new Point(45, 397);
+            btnKonumSifirla.Name = "btnKonumSifirla";
+            btnKonumSifirla.Size = new Size(132, 62);
+            btnKonumSifirla.TabIndex = 13;
+            btnKonumSifirla.Text = "Haritayı sıfırla";
+            btnKonumSifirla.UseVisualStyleBackColor = true;
+            btnKonumSifirla.Click += btnKonumSifirla_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(255, 192, 128);
             ClientSize = new Size(1291, 797);
+            Controls.Add(btnKonumSifirla);
             Controls.Add(dataGridView1);
             Controls.Add(label4);
             Controls.Add(button1);
-            Controls.Add(comboBox3);
-            Controls.Add(comboBox2);
-            Controls.Add(comboBox1);
+            Controls.Add(cmbBaslangic);
+            Controls.Add(cmbHedef);
+            Controls.Add(cmbKartDurumu);
             Controls.Add(label3);
             Controls.Add(label2);
             Controls.Add(label1);
             Controls.Add(gMapControl1);
             Name = "Form1";
             Text = "Form1";
+            Load += this.Form1_Load;
             ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
             ResumeLayout(false);
             PerformLayout();
@@ -178,11 +189,12 @@
         private Label label1;
         private Label label2;
         private Label label3;
-        private ComboBox comboBox1;
-        private ComboBox comboBox2;
-        private ComboBox comboBox3;
+        private ComboBox cmbKartDurumu;
+        private ComboBox cmbHedef;
+        private ComboBox cmbBaslangic;
         private Button button1;
         private Label label4;
         private DataGridView dataGridView1;
+        private Button btnKonumSifirla;
     }
 }
