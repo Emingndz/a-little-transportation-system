@@ -13,5 +13,10 @@ namespace Prolab_4.Models
         public string Tur { get; set; }  // bus veya tram
         public double Enlem { get; set; }
         public double Boylam { get; set; }
+        public bool SonDurak { get; set; }
+
+        public List<DurakBaglantisi> Baglantilar { get; set; } = new List<DurakBaglantisi>(); 
+
+
     }
 }

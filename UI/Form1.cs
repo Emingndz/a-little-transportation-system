@@ -1,4 +1,4 @@
-using System;
+ï»¿using System;
 using System.Windows.Forms;
 using GMap.NET;
 using GMap.NET.MapProviders;
@@ -53,20 +53,20 @@ namespace Prolab_4
 
         private void HaritaAyarla()
         {
-            gMapControl1.MapProvider = GMapProviders.OpenStreetMap; // OSM Harita Saðlayýcýsý
-            GMaps.Instance.Mode = AccessMode.ServerAndCache; // Sunucu ve önbellekten yükle
-            gMapControl1.Position = new PointLatLng(40.7655, 29.9400); // Ýzmit, Kocaeli baþlangýç noktasý
+            gMapControl1.MapProvider = GMapProviders.OpenStreetMap; // OSM Harita SaÄŸlayÄ±cÄ±sÄ±
+            GMaps.Instance.Mode = AccessMode.ServerAndCache; // Sunucu ve Ã¶nbellekten yÃ¼kle
+            gMapControl1.Position = new PointLatLng(40.7655, 29.9400); // Ä°zmit, Kocaeli baÅŸlangÄ±Ã§ noktasÄ±
 
-            // Yakýnlaþtýrma ayarlarý
+            // YakÄ±nlaÅŸtÄ±rma ayarlarÄ±
             gMapControl1.MinZoom = 1;
             gMapControl1.MaxZoom = 18;
             gMapControl1.Zoom = 12;
 
-            // Fare ile zoom açma
+            // Fare ile zoom aÃ§ma
             gMapControl1.MouseWheelZoomEnabled = true;
             gMapControl1.MouseWheelZoomType = MouseWheelZoomType.ViewCenter;
 
-            // Harita sürükleme ayarlarý
+            // Harita sÃ¼rÃ¼kleme ayarlarÄ±
             gMapControl1.CanDragMap = true;
             gMapControl1.DragButton = MouseButtons.Left;
             gMapControl1.ShowCenter = false;
@@ -76,7 +76,7 @@ namespace Prolab_4
         {
             var duraklar = durakService.DurakKonumlariniGetir();
 
-            // ComboBox'lara durak adlarýný yükle
+            // ComboBox'lara durak adlarÄ±nÄ± yÃ¼kle
             cmbBaslangic.DataSource = new List<Durak>(duraklar);
             cmbBaslangic.DisplayMember = "Ad";
             cmbBaslangic.ValueMember = "Id";
@@ -85,67 +85,138 @@ namespace Prolab_4
             cmbHedef.DisplayMember = "Ad";
             cmbHedef.ValueMember = "Id";
 
-            // Kart türleri
-            cmbKartDurumu.Items.AddRange(new string[] { "Genel", "Öðrenci", "Yaþlý" });
+            // Kart tÃ¼rleri
+            cmbKartDurumu.Items.AddRange(new string[] { "Genel", "Ã–ÄŸrenci", "YaÅŸlÄ±" });
 
         }
 
 
         private void button1_Click(object sender, EventArgs e)
         {
-            PointLatLng baslangic;
-            PointLatLng hedef;
-
-            // Varsayýlan olarak ComboBox’tan alýnýr
+            // 1) BaÅŸlangÄ±Ã§ ve hedef duraklarÄ±nÄ± al
             var secilenBaslangic = cmbBaslangic.SelectedItem as Durak;
             var secilenHedef = cmbHedef.SelectedItem as Durak;
 
             if (secilenBaslangic == null || secilenHedef == null)
             {
-                MessageBox.Show("Lütfen hem baþlangýç hem de hedef durak seçiniz (ComboBox).");
+                MessageBox.Show("LÃ¼tfen hem baÅŸlangÄ±Ã§ hem de hedef durak seÃ§iniz (ComboBox).");
                 return;
             }
 
-            baslangic = new PointLatLng(secilenBaslangic.Enlem, secilenBaslangic.Boylam);
-            hedef = new PointLatLng(secilenHedef.Enlem, secilenHedef.Boylam);
+            // 2) KullanÄ±cÄ± harita Ã¼zerinden konum seÃ§miÅŸse (varsa) - Ä°sterseniz bu kÄ±smÄ± da silebilirsiniz
+            PointLatLng baslangic = new PointLatLng(secilenBaslangic.Enlem, secilenBaslangic.Boylam);
+            PointLatLng hedef = new PointLatLng(secilenHedef.Enlem, secilenHedef.Boylam);
 
-            // Eðer kullanýcý haritadan seçim yaptýysa, öncelikli olarak onu kullan
             if (konumServisi.BaslangicKonumu.HasValue)
                 baslangic = konumServisi.BaslangicKonumu.Value;
 
             if (konumServisi.HedefKonumu.HasValue)
                 hedef = konumServisi.HedefKonumu.Value;
 
-            // Rota noktalarý
-            List<PointLatLng> rotaNoktalari = new List<PointLatLng> { baslangic, hedef };
+            // --- BURADA eskiden tek Ã§izgilik rota oluÅŸturma kodu vardÄ±, onu kaldÄ±rdÄ±k. ---
 
-            // Yeni rota overlay oluþtur
-            var rotaOverlay = new GMap.NET.WindowsForms.GMapOverlay("rota");
-            var rota = new GMap.NET.WindowsForms.GMapRoute(rotaNoktalari, "geciciRota");
-            rota.Stroke = new Pen(Color.DarkOrange, 3);
+            // 3) DurakService ile graf oluÅŸtur
+            DurakService ds = new DurakService();
+            var durakList = ds.DuraklariOkuVeGrafOlustur();
+            var durakDict = durakList.ToDictionary(d => d.Id, d => d);
 
-            // Marker'larý ekle
-            rotaOverlay.Markers.Add(new GMap.NET.WindowsForms.Markers.GMarkerGoogle(baslangic, GMap.NET.WindowsForms.Markers.GMarkerGoogleType.green));
-            rotaOverlay.Markers.Add(new GMap.NET.WindowsForms.Markers.GMarkerGoogle(hedef, GMap.NET.WindowsForms.Markers.GMarkerGoogleType.red));
+            // 4) RotaHesaplayici ile tÃ¼m olasÄ± yollarÄ± bul
+            RotaHesaplayici hesaplayici = new RotaHesaplayici();
+            string baslangicId = secilenBaslangic.Id;
+            string hedefId = secilenHedef.Id;
 
-            // Rota çizgisi ekle
-            rotaOverlay.Routes.Add(rota);
+            var tumRotalar = hesaplayici.TumRotalariBul(durakDict, baslangicId, hedefId);
 
-            // Önceki tüm overlay'leri temizle (duraklar dahilse onlarý yeniden eklemelisiniz!)
+            // 5) DataGridView'de gÃ¶stermek iÃ§in anonim sÄ±nÄ±f
+            var gorunum = tumRotalar.Select(r => new {
+                Duraklar = string.Join(" â†’ ", r.DurakIdList),
+                Ucret = r.ToplamUcret,
+                Sure = r.ToplamSure,
+                RotaObj = r  // DataGridView'de tÄ±klayÄ±nca Ã§izdirmek isterseniz
+            }).ToList();
+
+            dataGridView1.DataSource = gorunum;
+
+            // 6) Kolon baÅŸlÄ±klarÄ±nÄ± deÄŸiÅŸtirmek isterseniz
+            if (dataGridView1.Columns.Count >= 4)
+            {
+                dataGridView1.Columns[0].HeaderText = "Durak SÄ±rasÄ±";
+                dataGridView1.Columns[1].HeaderText = "Toplam Ãœcret";
+                dataGridView1.Columns[2].HeaderText = "Toplam SÃ¼re (dk)";
+                dataGridView1.Columns[3].Visible = false; // RotaObj'i gizliyoruz
+            }
+
+            MessageBox.Show("TÃ¼m alternatif yollar listelendi.");
+        }
+
+
+        private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
+        {
+            // BaÅŸlÄ±k satÄ±rÄ± tÄ±klanmÄ±ÅŸsa veya satÄ±r index < 0 ise iptal
+            if (e.RowIndex < 0) return;
+
+            // SeÃ§ilen satÄ±rÄ±n DataBoundItem'Ä±nÄ± al
+            dynamic seciliSatir = dataGridView1.Rows[e.RowIndex].DataBoundItem;
+            if (seciliSatir == null) return;
+
+            // Tabloda 'RotaObj' adÄ±nda bir alanÄ±mÄ±z vardÄ±
+            Rota seciliRota = seciliSatir.RotaObj as Rota;
+            if (seciliRota == null) return;
+
+            // Rota iÃ§indeki durak ID listesinden harita noktalarÄ±nÄ± oluÅŸtur
+            // Durak ID -> Enlem/Boylam mapping'i yapmak iÃ§in gene "durakDict" lazÄ±m.
+            // (Bunu global alana veya form seviyesine ekleyebilirsiniz.)
+            DurakService ds = new DurakService();
+            var durakList = ds.DuraklariOkuVeGrafOlustur();
+            var durakDict = durakList.ToDictionary(d => d.Id, d => d);
+
+            // NoktalarÄ± toplayacaÄŸÄ±mÄ±z liste
+            var rotaNoktalari = new List<GMap.NET.PointLatLng>();
+
+            foreach (var durakId in seciliRota.DurakIdList)
+            {
+                if (durakDict.ContainsKey(durakId))
+                {
+                    var dr = durakDict[durakId];
+                    rotaNoktalari.Add(new GMap.NET.PointLatLng(dr.Enlem, dr.Boylam));
+                }
+            }
+
+            // Harita Ã¼zerine Ã§izelim
+            // 1) Overlay sÄ±fÄ±rla
             gMapControl1.Overlays.Clear();
 
-            // Yeni rota overlay'i ekle
+            // 2) Yeni rota overlay
+            var rotaOverlay = new GMap.NET.WindowsForms.GMapOverlay("seciliRota");
+
+            // 3) GMapRoute
+            var cizilecekRota = new GMap.NET.WindowsForms.GMapRoute(rotaNoktalari, "rotaSecim");
+            cizilecekRota.Stroke = new Pen(Color.DarkMagenta, 3);
+
+            // 4) Marker'lar eklemek isterseniz (ilk nokta â†’ yeÅŸil, son nokta â†’ kÄ±rmÄ±zÄ±, ara noktalar â†’ mavi)
+            for (int i = 0; i < rotaNoktalari.Count; i++)
+            {
+                var nokta = rotaNoktalari[i];
+                if (i == 0)
+                    rotaOverlay.Markers.Add(new GMap.NET.WindowsForms.Markers.GMarkerGoogle(nokta, GMap.NET.WindowsForms.Markers.GMarkerGoogleType.green));
+                else if (i == rotaNoktalari.Count - 1)
+                    rotaOverlay.Markers.Add(new GMap.NET.WindowsForms.Markers.GMarkerGoogle(nokta, GMap.NET.WindowsForms.Markers.GMarkerGoogleType.red));
+                else
+                    rotaOverlay.Markers.Add(new GMap.NET.WindowsForms.Markers.GMarkerGoogle(nokta, GMap.NET.WindowsForms.Markers.GMarkerGoogleType.blue_dot));
+            }
+
+            // 5) Rota'yÄ± overlay'e ekle
+            rotaOverlay.Routes.Add(cizilecekRota);
+
+            // 6) Ekrana yansÄ±t
             gMapControl1.Overlays.Add(rotaOverlay);
 
-            // Haritayý yeniden çizdir (zorla refresh)
+            // HaritayÄ± yeniden Ã§iz
             gMapControl1.Zoom++;
             gMapControl1.Zoom--;
 
-            // Seçilen konumlarý ekrana yaz (test amaçlý)
-            Console.WriteLine($"Baþlangýç: {baslangic.Lat}, {baslangic.Lng}");
-            Console.WriteLine($"Hedef: {hedef.Lat}, {hedef.Lng}");
-
-            MessageBox.Show("Baþlangýç ve hedef arasýnda çizgi çizildi.");
+            // (Ä°steÄŸe baÄŸlÄ±) Bilgi verebilirsiniz:
+            MessageBox.Show($"SeÃ§ilen rota {seciliRota.DurakIdList.Count} duraktan oluÅŸuyor.");
         }
 
 
@@ -162,17 +233,17 @@ namespace Prolab_4
         private void sifirlamafonksiyonu()
         {
 
-            // 1. Servisten seçilen konumlarý sýfýrla
+            // 1. Servisten seÃ§ilen konumlarÄ± sÄ±fÄ±rla
             konumServisi.ResetKonumlar();
 
-            // 2. Haritadaki tüm çizgileri ve marker'larý sil
+            // 2. Haritadaki tÃ¼m Ã§izgileri ve marker'larÄ± sil
             gMapControl1.Overlays.Clear();
 
-            // 3. Duraklarý tekrar çiz (ilk yükleme gibi)
-            DurakEkle(); // veya HaritaAyarla() içinde varsa çaðýrýn
+            // 3. DuraklarÄ± tekrar Ã§iz (ilk yÃ¼kleme gibi)
+            DurakEkle(); // veya HaritaAyarla() iÃ§inde varsa Ã§aÄŸÄ±rÄ±n
 
-            // 4. Harita pozisyonunu sýfýrla
-            gMapControl1.Position = new PointLatLng(40.76520, 29.96190); // Ýzmit örneði
+            // 4. Harita pozisyonunu sÄ±fÄ±rla
+            gMapControl1.Position = new PointLatLng(40.76520, 29.96190); // Ä°zmit Ã¶rneÄŸi
             gMapControl1.Zoom = 13;
 
             

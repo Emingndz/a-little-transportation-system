@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace Prolab_4.Models
 {
-    internal class Rota
+    public class Rota
     {
+        public List<string> DurakIdList { get; set; } = new List<string>();
+        public double ToplamUcret { get; set; }
+        public int ToplamSure { get; set; }
     }
+
 }

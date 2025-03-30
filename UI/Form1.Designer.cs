@@ -147,6 +147,7 @@
             dataGridView1.RowHeadersWidth = 51;
             dataGridView1.Size = new Size(1299, 292);
             dataGridView1.TabIndex = 12;
+            dataGridView1.CellClick += dataGridView1_CellClick;
             // 
             // btnKonumSifirla
             // 
@@ -177,7 +178,7 @@
             Controls.Add(gMapControl1);
             Name = "Form1";
             Text = "Form1";
-            Load += this.Form1_Load;
+            Load += Form1_Load;
             ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
             ResumeLayout(false);
             PerformLayout();
