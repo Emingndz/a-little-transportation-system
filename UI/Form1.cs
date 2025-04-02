@@ -93,7 +93,7 @@ namespace Prolab_4
 
         private void button1_Click(object sender, EventArgs e)
         {
-            // 1) Başlangıç ve hedef duraklarını al
+            // 1) Başlangıç ve hedef duraklarını al (ComboBox)
             var secilenBaslangic = cmbBaslangic.SelectedItem as Durak;
             var secilenHedef = cmbHedef.SelectedItem as Durak;
 
@@ -103,7 +103,7 @@ namespace Prolab_4
                 return;
             }
 
-            // 2) Kullanıcı harita üzerinden konum seçmişse (varsa) - İsterseniz bu kısmı da silebilirsiniz
+            // 2) Kullanıcı harita üzerinden konum seçmişse (varsa), lat/lon al
             PointLatLng baslangic = new PointLatLng(secilenBaslangic.Enlem, secilenBaslangic.Boylam);
             PointLatLng hedef = new PointLatLng(secilenHedef.Enlem, secilenHedef.Boylam);
 
@@ -113,21 +113,96 @@ namespace Prolab_4
             if (konumServisi.HedefKonumu.HasValue)
                 hedef = konumServisi.HedefKonumu.Value;
 
-            // --- BURADA eskiden tek çizgilik rota oluşturma kodu vardı, onu kaldırdık. ---
-
             // 3) DurakService ile graf oluştur
             DurakService ds = new DurakService();
+
+            // userNode1, userNode2 başta null tanımlanır
+            Durak userNode1 = null;
+            Durak userNode2 = null;
+
             var durakList = ds.DuraklariOkuVeGrafOlustur();
             var durakDict = durakList.ToDictionary(d => d.Id, d => d);
 
-            // 4) RotaHesaplayici ile tüm olası yolları bul
-            RotaHesaplayici hesaplayici = new RotaHesaplayici();
-            string baslangicId = secilenBaslangic.Id;
-            string hedefId = secilenHedef.Id;
+            // ========================
+            // BAŞLANGIÇ ID BELİRLEME:
+            // ========================
+            string baslangicId;
 
+            if (konumServisi.BaslangicDurak != null)
+            {
+                // 3a. Haritadan gerçek bir durak tıklanmışsa
+                baslangicId = konumServisi.BaslangicDurak.Id;
+            }
+            else if (konumServisi.BaslangicKonumu.HasValue)
+            {
+                // 3b. Haritadan durak dışı konum → userNode ekle
+                userNode1 = ds.AddUserNode(baslangic.Lat, baslangic.Lng, durakList);
+                durakList.Add(userNode1);
+                durakDict[userNode1.Id] = userNode1;
+
+                baslangicId = userNode1.Id;
+            }
+            else
+            {
+                // 3c. ComboBox'tan seçilen durak
+                baslangicId = secilenBaslangic.Id;
+            }
+
+            // ====================
+            // HEDEF ID BELİRLEME:
+            // ====================
+            string hedefId;
+
+            if (konumServisi.HedefDurak != null)
+            {
+                // 4a. Haritadan gerçek bir durak tıklanmışsa
+                hedefId = konumServisi.HedefDurak.Id;
+            }
+            else if (konumServisi.HedefKonumu.HasValue)
+            {
+                // 4b. Haritadan durak dışı konum → targetNode ekle
+                userNode2 = ds.AddUserNode(hedef.Lat, hedef.Lng, durakList);
+                durakList.Add(userNode2);
+                durakDict[userNode2.Id] = userNode2;
+
+                hedefId = userNode2.Id;
+            }
+            else
+            {
+                // 4c. ComboBox'tan seçilen durak
+                hedefId = secilenHedef.Id;
+            }
+
+            // ================
+            // TAKSİ BAĞLANTISI:
+            // ================
+            // Eğer hem başlangıç hem hedef durak dışı seçildiyse (yani userNode1 & userNode2 oluşturulduysa)
+            // bu da null ref vermesin diye userNode1 != null ve userNode2 != null kontrolü yapıyoruz.
+            if (userNode1 != null && userNode2 != null)
+            {
+                double mesafe = ds.MesafeHesapla(userNode1.Enlem, userNode1.Boylam, userNode2.Enlem, userNode2.Boylam);
+                Arac taksi = new Taksi(mesafe);
+
+                // Tek yönlü bağlantı: userNode1 → userNode2
+                userNode1.Baglantilar.Add(new DurakBaglantisi
+                {
+                    HedefDurakId = userNode2.Id,
+                    Arac = taksi
+                });
+
+                // İsteğe bağlı: ters yönü de eklerseniz
+                userNode2.Baglantilar.Add(new DurakBaglantisi
+                {
+                    HedefDurakId = userNode1.Id,
+                    Arac = taksi
+                });
+            }
+
+            // 5) RotaHesaplayici ile tüm olası yolları bul
+            RotaHesaplayici hesaplayici = new RotaHesaplayici();
             var tumRotalar = hesaplayici.TumRotalariBul(durakDict, baslangicId, hedefId);
 
-            // 5) DataGridView'de göstermek için anonim sınıf
+            // 6) DataGridView'de göstermek için anonim sınıf
             var gorunum = tumRotalar.Select(r => new {
                 Duraklar = string.Join(" → ", r.DurakIdList),
                 Ucret = r.ToplamUcret,
@@ -137,7 +212,7 @@ namespace Prolab_4
 
             dataGridView1.DataSource = gorunum;
 
-            // 6) Kolon başlıklarını değiştirmek isterseniz
+            // 7) Kolon başlıklarını değiştirmek isterseniz
             if (dataGridView1.Columns.Count >= 4)
             {
                 dataGridView1.Columns[0].HeaderText = "Durak Sırası";
@@ -148,6 +223,7 @@ namespace Prolab_4
 
             MessageBox.Show("Tüm alternatif yollar listelendi.");
         }
+
 
 
         private void dataGridView1_CellClick(object sender, DataGridViewCellEventArgs e)
@@ -218,9 +294,6 @@ namespace Prolab_4
             // (İsteğe bağlı) Bilgi verebilirsiniz:
             MessageBox.Show($"Seçilen rota {seciliRota.DurakIdList.Count} duraktan oluşuyor.");
         }
-
-
-
 
 
         private void btnKonumSifirla_Click(object sender, EventArgs e)

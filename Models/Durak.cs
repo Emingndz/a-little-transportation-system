@@ -17,6 +17,6 @@ namespace Prolab_4.Models
 
         public List<DurakBaglantisi> Baglantilar { get; set; } = new List<DurakBaglantisi>(); 
 
-
+    
     }
 }

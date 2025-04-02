@@ -29,7 +29,7 @@ namespace Prolab_4.Services
             // 2. DFS için hazırlık
             // visited: recursion çağrısı boyunca hangi duraklara girdik, track etmek için
             var visited = new HashSet<string>();
-            var yol = new List<string> { baslangicId }; // başlangıç durak eklendi
+            var yol = new List<string> { baslangicId }; // başlangıç durağını ekliyoruz
 
             // 3. DFS fonksiyonunu çağır
             AramaDFS(durakDict, baslangicId, hedefId, 0.0, 0, yol, visited, tumRotalar);
@@ -56,7 +56,7 @@ namespace Prolab_4.Services
             HashSet<string> visited,
             List<Rota> tumRotalar)
         {
-            // 1. Hedefe ulaştıysak, bulduğumuz rota kaydedilip return edilir
+            // 1. Hedefe ulaştıysak, bulduğumuz rota kaydedip return ediyoruz
             if (currentId == hedefId)
             {
                 var rota = new Rota
@@ -74,29 +74,53 @@ namespace Prolab_4.Services
 
             // 3. Sıradaki duraklara geçiş
             var currentDurak = durakDict[currentId];
+
             foreach (var baglanti in currentDurak.Baglantilar)
             {
                 string nextId = baglanti.HedefDurakId;
 
-                // cycle önlemek: eğer bu ID visited'daysa zaten bu yol üstünde gezdik
+                // *** YENİ: Hedefe direkt gidiyorsa cycle'ı atlamadan kaydedelim
+                if (nextId == hedefId)
+                {
+                    double finalUcret = ucretSoFar + (baglanti.Arac?.Ucret ?? 0);
+                    int finalSure = sureSoFar + (baglanti.Arac?.TahminiSure ?? 0);
+
+                    yol.Add(nextId);
+
+                    var directRota = new Rota
+                    {
+                        DurakIdList = new List<string>(yol),
+                        ToplamUcret = finalUcret,
+                        ToplamSure = finalSure
+                    };
+                    tumRotalar.Add(directRota);
+
+                    // geri dönüş
+                    yol.RemoveAt(yol.Count - 1);
+
+                    // Bu kenarı işledik, devam edelim (diğer alternatifleri de görebilir)
+                    continue;
+                }
+
+                // 4. cycle önlemek: eğer nextId visited setinde varsa bu path'i atla
                 if (visited.Contains(nextId))
                     continue;
 
-                // Ücret / süreyi hesapla (Arac null olursa 0 eklenir)
+                // 5. Ücret / süreyi hesapla (Arac null olursa 0 eklenir)
                 double yeniUcret = ucretSoFar + (baglanti.Arac?.Ucret ?? 0);
                 int yeniSure = sureSoFar + (baglanti.Arac?.TahminiSure ?? 0);
 
-                // yol'a ekle
+                // 6. Yol'a ekle
                 yol.Add(nextId);
 
-                // recursion
+                // 7. recursion
                 AramaDFS(durakDict, nextId, hedefId, yeniUcret, yeniSure, yol, visited, tumRotalar);
 
-                // geri dönüş
+                // 8. geri dönüş
                 yol.RemoveAt(yol.Count - 1);
             }
 
-            // 4. Bu düğümden çıkarken visited'dan kaldır (backtracking)
+            // 9. Bu düğümden çıkarken visited'dan kaldır (backtracking)
             visited.Remove(currentId);
         }
     }

@@ -1,4 +1,5 @@
-﻿using Prolab_4.Models;
+﻿using GMap.NET;
+using Prolab_4.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -157,5 +158,72 @@ namespace Prolab_4.Services
 
             return durakListesi;
         }
+
+        public Durak AddUserNode(double userLat, double userLon, List<Durak> tumDuraklar)
+        {
+            // 1) Yeni durak nesnesi (sanal durak)
+            var userNode = new Durak
+            {
+                Id = "userNode_" + Guid.NewGuid().ToString("N"), // her seferinde eşsiz ID türetilmeli
+                Ad = "KullaniciKonumu",
+                Enlem = userLat,
+                Boylam = userLon,
+                Baglantilar = new List<DurakBaglantisi>()
+            };
+
+            // 2) Her durakla mesafe ölç, 3 km kuralına göre Arac oluştur
+            foreach (var durak in tumDuraklar)
+            {
+                double mesafe = MesafeHesapla(userLat, userLon, durak.Enlem, durak.Boylam);
+
+                Arac baglantiAraci ;
+                if (mesafe <= 3.0)
+                {
+                    // Yürüyüş
+                    baglantiAraci = new Yurumek(mesafe);
+                }
+                else
+                {
+                    // Taksi
+                    baglantiAraci = new Taksi(mesafe); // 10 + 4 * d
+                }
+
+                userNode.Baglantilar.Add(new DurakBaglantisi
+                {
+                    HedefDurakId = durak.Id,
+                    Arac = baglantiAraci
+                });
+
+                durak.Baglantilar.Add(new DurakBaglantisi
+                {
+                    HedefDurakId = userNode.Id,
+                    Arac = baglantiAraci
+                });
+            }
+
+            return userNode;
+        }
+
+        
+
+        public double MesafeHesapla(double lat1, double lon1, double lat2, double lon2)
+        {
+            double R = 6371.0; // dünya yarıçapı km
+            double dLat = ToRadians(lat2 - lat1);
+            double dLon = ToRadians(lon2 - lon1);
+
+            double a = Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                       Math.Cos(ToRadians(lat1)) * Math.Cos(ToRadians(lat2)) *
+                       Math.Sin(dLon / 2) * Math.Sin(dLon / 2);
+
+            double c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+            return R * c;
+        }
+        private double ToRadians(double angle)
+        {
+            return Math.PI * angle / 180.0;
+        }
+
+
     }
 }
