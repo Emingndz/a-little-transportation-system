@@ -20,14 +20,14 @@ namespace Prolab_4
         }
 
         private void Form1_Load(object sender, EventArgs e)
-        { 
+        {
             HaritaAyarla();
             DurakEkle();
             comboboxdurakekleme();
             konumServisi.HaritaTiklamaBagla(gMapControl1);
         }
 
-        
+
 
         private DurakService durakService = new DurakService();
         private KonumSecimServisi konumServisi = new KonumSecimServisi();
@@ -85,14 +85,24 @@ namespace Prolab_4
             cmbHedef.DisplayMember = "Ad";
             cmbHedef.ValueMember = "Id";
 
-            // Kart türleri
-            cmbKartDurumu.Items.AddRange(new string[] { "Genel", "Öğrenci", "Yaşlı" });
+            
+           
 
         }
 
 
         private void button1_Click(object sender, EventArgs e)
         {
+            Yolcu seciliYolcu;
+            switch (cmbKartDurumu.SelectedIndex)
+            {
+                case 0: seciliYolcu = new Genel(); break;
+                case 1: seciliYolcu = new Ogrenci(); break;
+                case 2: seciliYolcu = new Yasli(); break;
+                default: seciliYolcu = new Genel(); break;
+            }
+
+
             // 1) Başlangıç ve hedef duraklarını al (ComboBox)
             var secilenBaslangic = cmbBaslangic.SelectedItem as Durak;
             var secilenHedef = cmbHedef.SelectedItem as Durak;
@@ -200,10 +210,11 @@ namespace Prolab_4
 
             // 5) RotaHesaplayici ile tüm olası yolları bul
             RotaHesaplayici hesaplayici = new RotaHesaplayici();
-            var tumRotalar = hesaplayici.TumRotalariBul(durakDict, baslangicId, hedefId);
+            var tumRotalar = hesaplayici.TumRotalariBul(durakDict, baslangicId, hedefId, seciliYolcu);
 
             // 6) DataGridView'de göstermek için anonim sınıf
-            var gorunum = tumRotalar.Select(r => new {
+            var gorunum = tumRotalar.Select(r => new
+            {
                 Duraklar = string.Join(" → ", r.DurakIdList),
                 Ucret = r.ToplamUcret,
                 Sure = r.ToplamSure,
@@ -319,8 +330,9 @@ namespace Prolab_4
             gMapControl1.Position = new PointLatLng(40.76520, 29.96190); // İzmit örneği
             gMapControl1.Zoom = 13;
 
-            
+
         }
 
+        
     }
 }

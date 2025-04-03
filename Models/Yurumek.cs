@@ -11,20 +11,20 @@ namespace Prolab_4.Models
         public Yurumek(double mesafe)
         {
             this.Mesafe = mesafe;
-            // yürüyüş ücreti = 0
-            this.Ucret = 0;
-            // süre (örnek): 4 km/saat = 15 dk/ km
+            this.Ucret = 0; // yürüyüş bedava
+                            // Örneğin: 4 km/saat => 15 dk / km
             this.TahminiSure = (int)(mesafe * 15);
         }
 
-        public override double UcretHesapla(double mesafe, bool indirimli = false)
+        public override double UcretHesapla(double mesafe, Yolcu yolcu)
         {
             return 0;
         }
 
         public override int TahminiSüreHesapla(double mesafe)
         {
-            return (int)(mesafe * 15);
+            return this.TahminiSure;
         }
     }
+
 }

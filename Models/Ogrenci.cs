@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace Prolab_4.Models
 {
-    internal class Ogrenci
+    public class Ogrenci : Yolcu
     {
+        public override string Tip => "Öğrenci";
+        // Örnek: %50 indirim
+        public override double IndirimOrani => 0.5;
     }
+
 }

@@ -14,7 +14,10 @@ namespace Prolab_4.Models
         public double Mesafe { get; protected set; } // Kilometre cinsinden
 
         // Ortak davranışlar
-        public abstract double UcretHesapla(double mesafe, bool indirimli = false);
+        // public abstract double UcretHesapla(double mesafe, bool indirimli = false);
+
+        public abstract double UcretHesapla(double mesafe, Yolcu yolcu);
+
         public abstract int TahminiSüreHesapla(double mesafe);
     }
 }

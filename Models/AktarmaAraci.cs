@@ -10,21 +10,24 @@ namespace Prolab_4.Models
     {
         public AktarmaAraci(int sure, double ucret)
         {
-            // Örneğin mesafe = 0, TahminiSure = sure
             this.Mesafe = 0;
             this.TahminiSure = sure;
             this.Ucret = ucret;
         }
 
-        public override double UcretHesapla(double mesafe, bool indirimli = false)
+        // Imza: Arac'taki double UcretHesapla(double, Yolcu) ile aynı
+        public override double UcretHesapla(double mesafe, Yolcu yolcu)
         {
-            // Aktarma ücreti sabit ise:
-            return Ucret;
+            // Aktarma ücreti sabit ise mesafe = 0
+            // Yolcu tipine göre indirim (isterseniz):
+            // return yolcu.IndirimliUcret(Ucret);
+
+            return this.Ucret;
         }
 
         public override int TahminiSüreHesapla(double mesafe)
         {
-            return TahminiSure;
+            return this.TahminiSure;
         }
     }
 

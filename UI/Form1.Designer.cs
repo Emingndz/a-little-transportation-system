@@ -98,6 +98,7 @@
             // cmbKartDurumu
             // 
             cmbKartDurumu.FormattingEnabled = true;
+            cmbKartDurumu.Items.AddRange(new object[] { "Genel", "Öğrenci", "65+" });
             cmbKartDurumu.Location = new Point(201, 302);
             cmbKartDurumu.Name = "cmbKartDurumu";
             cmbKartDurumu.Size = new Size(151, 28);

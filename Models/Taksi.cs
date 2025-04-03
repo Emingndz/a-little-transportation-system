@@ -8,27 +8,25 @@ namespace Prolab_4.Models
 {
     public class Taksi : Arac
     {
-        private double acilisUcreti = 10.0;
-        private double kmBasiUcret = 4.0;
-
         public Taksi(double mesafe)
         {
-            // AracTuru = "taxi"; (isterseniz)
+            // PDF: 10 + 4 * mesafe
             this.Mesafe = mesafe;
-            // Süreyi ortalama 50 km/s gibi hesaplayabilirsiniz (ya da sabit)
-            this.TahminiSure = (int)(mesafe / 50.0 * 60); // km/50 * 60 => dakika
-            this.Ucret = UcretHesapla(mesafe);
+            this.Ucret = 10 + 4 * mesafe;
+            // Süre = km / 50 km/s => dakikaya çevir
+            this.TahminiSure = (int)((mesafe / 50.0) * 60);
         }
 
-        public override double UcretHesapla(double mesafe, bool indirimli = false)
+        public override double UcretHesapla(double mesafe, Yolcu yolcu)
         {
-            // Taksilerde indirim yoksa:
-            return acilisUcreti + (kmBasiUcret * mesafe);
+            // Takside belki indirim yok diyebilirsiniz, 
+            // yoksa: return yolcu.IndirimliUcret(this.Ucret);
+            return this.Ucret;
         }
 
         public override int TahminiSüreHesapla(double mesafe)
         {
-            return (int)(mesafe / 50.0 * 60);
+            return this.TahminiSure;
         }
     }
 

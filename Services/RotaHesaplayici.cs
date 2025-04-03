@@ -1,7 +1,6 @@
 ﻿using Prolab_4.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Prolab_4.Services
 {
@@ -14,8 +13,14 @@ namespace Prolab_4.Services
         /// <summary>
         /// baslangicId -> hedefId tüm yolları arar.
         /// Her bir yolun ToplamUcret ve ToplamSure'si Rota nesnesinde tutulur.
+        /// Yolcu parametresi eklendi, böylece Otobüs/Tramvay ücretinde indirim vb. hesaplanabilir.
         /// </summary>
-        public List<Rota> TumRotalariBul(Dictionary<string, Durak> durakDict, string baslangicId, string hedefId)
+        public List<Rota> TumRotalariBul(
+            Dictionary<string, Durak> durakDict,
+            string baslangicId,
+            string hedefId,
+            Yolcu yolcu  // YENİ parametre
+        )
         {
             var tumRotalar = new List<Rota>();
 
@@ -27,12 +32,11 @@ namespace Prolab_4.Services
             }
 
             // 2. DFS için hazırlık
-            // visited: recursion çağrısı boyunca hangi duraklara girdik, track etmek için
             var visited = new HashSet<string>();
             var yol = new List<string> { baslangicId }; // başlangıç durağını ekliyoruz
 
-            // 3. DFS fonksiyonunu çağır
-            AramaDFS(durakDict, baslangicId, hedefId, 0.0, 0, yol, visited, tumRotalar);
+            // 3. DFS fonksiyonunu çağırırken yolcu da veriyoruz
+            AramaDFS(durakDict, baslangicId, hedefId, 0.0, 0, yol, visited, tumRotalar, yolcu);
 
             return tumRotalar;
         }
@@ -45,6 +49,7 @@ namespace Prolab_4.Services
         /// yol: o anki rota (düğüm ID'leri)
         /// visited: mevcut recursion path'te ziyaret edilen duraklar
         /// tumRotalar: tamamlanmış bütün yolların tutulduğu liste
+        /// yolcu: hangi tip yolcu (öğrenci, 65+ vb.)
         /// </summary>
         private void AramaDFS(
             Dictionary<string, Durak> durakDict,
@@ -54,7 +59,9 @@ namespace Prolab_4.Services
             int sureSoFar,
             List<string> yol,
             HashSet<string> visited,
-            List<Rota> tumRotalar)
+            List<Rota> tumRotalar,
+            Yolcu yolcu // YENİ parametre
+        )
         {
             // 1. Hedefe ulaştıysak, bulduğumuz rota kaydedip return ediyoruz
             if (currentId == hedefId)
@@ -82,8 +89,16 @@ namespace Prolab_4.Services
                 // *** YENİ: Hedefe direkt gidiyorsa cycle'ı atlamadan kaydedelim
                 if (nextId == hedefId)
                 {
-                    double finalUcret = ucretSoFar + (baglanti.Arac?.Ucret ?? 0);
-                    int finalSure = sureSoFar + (baglanti.Arac?.TahminiSure ?? 0);
+                    // Otobüs/Tramvay ise UcretHesapla(mesafe, yolcu) diyebilirsiniz.
+                    double finalUcret = ucretSoFar;
+                    int finalSure = sureSoFar;
+
+                    if (baglanti.Arac != null)
+                    {
+                        double aracUcret = baglanti.Arac.UcretHesapla(baglanti.Arac.Mesafe, yolcu);
+                        finalUcret += aracUcret;
+                        finalSure += baglanti.Arac.TahminiSure;
+                    }
 
                     yol.Add(nextId);
 
@@ -107,14 +122,31 @@ namespace Prolab_4.Services
                     continue;
 
                 // 5. Ücret / süreyi hesapla (Arac null olursa 0 eklenir)
-                double yeniUcret = ucretSoFar + (baglanti.Arac?.Ucret ?? 0);
-                int yeniSure = sureSoFar + (baglanti.Arac?.TahminiSure ?? 0);
+                double yeniUcret = ucretSoFar;
+                int yeniSure = sureSoFar;
+
+                if (baglanti.Arac != null)
+                {
+                    double aracUcret = baglanti.Arac.UcretHesapla(baglanti.Arac.Mesafe, yolcu);
+                    yeniUcret += aracUcret;
+                    yeniSure += baglanti.Arac.TahminiSure;
+                }
 
                 // 6. Yol'a ekle
                 yol.Add(nextId);
 
                 // 7. recursion
-                AramaDFS(durakDict, nextId, hedefId, yeniUcret, yeniSure, yol, visited, tumRotalar);
+                AramaDFS(
+                    durakDict,
+                    nextId,
+                    hedefId,
+                    yeniUcret,
+                    yeniSure,
+                    yol,
+                    visited,
+                    tumRotalar,
+                    yolcu // YENİ parametre de geçiyoruz
+                );
 
                 // 8. geri dönüş
                 yol.RemoveAt(yol.Count - 1);
