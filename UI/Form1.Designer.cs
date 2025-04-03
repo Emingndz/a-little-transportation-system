@@ -178,7 +178,7 @@
             Controls.Add(label1);
             Controls.Add(gMapControl1);
             Name = "Form1";
-            Text = "Form1";
+            Text = "Navigation System";
             Load += Form1_Load;
             ((System.ComponentModel.ISupportInitialize)dataGridView1).EndInit();
             ResumeLayout(false);
