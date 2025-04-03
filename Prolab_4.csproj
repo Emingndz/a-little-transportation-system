@@ -9,6 +9,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resource\Arkaplan.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Resource\Arkaplan.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="GMap.Net" Version="1.0.1" />
     <PackageReference Include="GMap.NET.Core" Version="2.1.7" />
     <PackageReference Include="GMap.NET.WindowsForms" Version="1.7.5" />

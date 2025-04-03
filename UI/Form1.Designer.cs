@@ -165,7 +165,7 @@
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = Color.FromArgb(255, 192, 128);
-            ClientSize = new Size(1291, 797);
+            ClientSize = new Size(1291, 769);
             Controls.Add(btnKonumSifirla);
             Controls.Add(dataGridView1);
             Controls.Add(label4);

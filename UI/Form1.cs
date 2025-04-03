@@ -24,6 +24,7 @@ namespace Prolab_4
         public Form1()
         {
             InitializeComponent();
+            
             this.Load += Form1_Load;
         }
 
@@ -34,6 +35,8 @@ namespace Prolab_4
         // --------------------------------------------------------------------------------
         private void Form1_Load(object sender, EventArgs e)
         {
+            this.BackgroundImage = Image.FromFile("Resource\\Arkaplan.png");
+            this.BackgroundImageLayout = ImageLayout.Stretch;
             HaritaAyarla();
             DurakEkle();          // İsterseniz bunu kaldırabilirsiniz, harita tamamen boş başlar.
             comboboxdurakekleme();
@@ -195,6 +198,19 @@ namespace Prolab_4
                 dataGridView1.Columns[2].HeaderText = "Toplam Süre (dk)";
                 dataGridView1.Columns[3].Visible = false; // RotaObj'i gizle
             }
+
+            // DataGridView görünümünü optimize et
+            dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
+            dataGridView1.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
+            dataGridView1.DefaultCellStyle.WrapMode = DataGridViewTriState.True; // Uzun metinler alt satıra geçebilir
+            dataGridView1.RowTemplate.Height = 40;
+            dataGridView1.AllowUserToResizeRows = false;
+
+            dataGridView1.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
+            dataGridView1.DefaultCellStyle.Font = new Font("Segoe UI", 10);
+            dataGridView1.DefaultCellStyle.ForeColor = Color.Black;
+            dataGridView1.DefaultCellStyle.BackColor = Color.WhiteSmoke;
+            dataGridView1.BorderStyle = BorderStyle.None;
 
             MessageBox.Show("Tüm alternatif rotalar listelendi.");
         }
