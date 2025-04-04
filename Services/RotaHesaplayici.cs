@@ -19,7 +19,8 @@ namespace Prolab_4.Services
             Dictionary<string, Durak> durakDict,
             string baslangicId,
             string hedefId,
-            Yolcu yolcu  // YENİ parametre
+            Yolcu yolcu, // YENİ parametre
+            IOdemeYontemi odemeYontemi
         )
         {
             var tumRotalar = new List<Rota>();
@@ -36,7 +37,7 @@ namespace Prolab_4.Services
             var yol = new List<string> { baslangicId }; // başlangıç durağını ekliyoruz
 
             // 3. DFS fonksiyonunu çağırırken yolcu da veriyoruz
-            AramaDFS(durakDict, baslangicId, hedefId, 0.0, 0, yol, visited, tumRotalar, yolcu);
+            AramaDFS(durakDict, baslangicId, hedefId, 0.0, 0, yol, visited, tumRotalar, yolcu, odemeYontemi);
 
             return tumRotalar;
         }
@@ -60,7 +61,8 @@ namespace Prolab_4.Services
             List<string> yol,
             HashSet<string> visited,
             List<Rota> tumRotalar,
-            Yolcu yolcu // YENİ parametre
+            Yolcu yolcu, // YENİ parametre
+            IOdemeYontemi odemeYontemi
         )
         {
             // 1. Hedefe ulaştıysak, bulduğumuz rota kaydedip return ediyoruz
@@ -95,7 +97,7 @@ namespace Prolab_4.Services
 
                     if (baglanti.Arac != null)
                     {
-                        double aracUcret = baglanti.Arac.UcretHesapla(baglanti.Arac.Mesafe, yolcu);
+                        double aracUcret = odemeYontemi.UcretHesapla(yolcu, baglanti.Arac);
                         finalUcret += aracUcret;
                         finalSure += baglanti.Arac.TahminiSure;
                     }
@@ -127,7 +129,7 @@ namespace Prolab_4.Services
 
                 if (baglanti.Arac != null)
                 {
-                    double aracUcret = baglanti.Arac.UcretHesapla(baglanti.Arac.Mesafe, yolcu);
+                    double aracUcret = odemeYontemi.UcretHesapla(yolcu,baglanti.Arac);
                     yeniUcret += aracUcret;
                     yeniSure += baglanti.Arac.TahminiSure;
                 }
@@ -145,7 +147,9 @@ namespace Prolab_4.Services
                     yol,
                     visited,
                     tumRotalar,
-                    yolcu // YENİ parametre de geçiyoruz
+                    yolcu,
+                    odemeYontemi// YENİ parametre de geçiyoruz
+
                 );
 
                 // 8. geri dönüş

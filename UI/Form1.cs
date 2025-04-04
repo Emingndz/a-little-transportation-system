@@ -26,6 +26,7 @@ namespace Prolab_4
             InitializeComponent();
             
             this.Load += Form1_Load;
+            
         }
 
         // --------------------------------------------------------------------------------
@@ -41,8 +42,16 @@ namespace Prolab_4
             DurakEkle();          // İsterseniz bunu kaldırabilirsiniz, harita tamamen boş başlar.
             comboboxdurakekleme();
             konumServisi.HaritaTiklamaBagla(gMapControl1);
+
+            lblTaksi.ForeColor = Color.FromArgb(255, 165, 0);       // Turuncu
+            lblOtobus.ForeColor = Color.FromArgb(70, 130, 180);     // Mavi
+            lblTramvay.ForeColor = Color.FromArgb(60, 179, 113);    // Yeşil
+            lblYurume.ForeColor = Color.FromArgb(139, 69, 19);      // Kahverengi
+            lblAktarma.ForeColor = Color.FromArgb(138, 43, 226);    // Mor
+
         }
 
+        
         // ------------------------------------------------------------------------
         // 1) HARİTA AYARLARI
         // ------------------------------------------------------------------------
@@ -176,43 +185,55 @@ namespace Prolab_4
                 userNode2.Baglantilar.Add(new DurakBaglantisi { HedefDurakId = userNode1.Id, Arac = taksi });
             }
 
+
+            IOdemeYontemi secilenOdeme = OdemeYontemiOlustur();
+
+            if (secilenOdeme == null)
+                return;
+
             // 4f) RotaHesaplayici ile tüm rotaları bul
             var hesaplayici = new RotaHesaplayici();
-            var tumRotalar = hesaplayici.TumRotalariBul(globalDurakDict, baslangicId, hedefId, seciliYolcu);
+            var tumRotalar = hesaplayici.TumRotalariBul(globalDurakDict, baslangicId, hedefId, seciliYolcu, secilenOdeme);
 
-            // 4g) DataGridView'e anonim liste
-            var gorunum = tumRotalar.Select(r => new
-            {
-                Duraklar = TransformRoute(r, globalDurakDict),
-                Ucret = r.ToplamUcret,
-                Sure = r.ToplamSure,
-                RotaObj = r
-            }).ToList();
+            // 4g) Süreye göre sıralı anonim liste
+            var gorunum = tumRotalar
+                .OrderBy(r => r.ToplamSure) // <<< EN KRİTİK SATIR: Süreye göre artan sıralama
+                .Select(r => new
+                {
+                    Duraklar = TransformRoute(r, globalDurakDict),
+                    Ucret = r.ToplamUcret,
+                    Sure = r.ToplamSure,
+                    RotaObj = r
+                })
+                .ToList();
 
+            // DataGridView'e bağla
             dataGridView1.DataSource = gorunum;
 
+            // Sütun başlıklarını ayarla
             if (dataGridView1.Columns.Count >= 4)
             {
                 dataGridView1.Columns[0].HeaderText = "Durak Sırası";
                 dataGridView1.Columns[1].HeaderText = "Toplam Ücret";
                 dataGridView1.Columns[2].HeaderText = "Toplam Süre (dk)";
-                dataGridView1.Columns[3].Visible = false; // RotaObj'i gizle
+                dataGridView1.Columns[3].Visible = false; // RotaObj sütununu gizle
             }
 
-            // DataGridView görünümünü optimize et
+            // Görünüm ayarları
             dataGridView1.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             dataGridView1.AutoSizeRowsMode = DataGridViewAutoSizeRowsMode.AllCells;
-            dataGridView1.DefaultCellStyle.WrapMode = DataGridViewTriState.True; // Uzun metinler alt satıra geçebilir
+            dataGridView1.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
             dataGridView1.RowTemplate.Height = 40;
             dataGridView1.AllowUserToResizeRows = false;
 
+            // Yazı tipi ve stil
             dataGridView1.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
             dataGridView1.DefaultCellStyle.Font = new Font("Segoe UI", 10);
             dataGridView1.DefaultCellStyle.ForeColor = Color.Black;
             dataGridView1.DefaultCellStyle.BackColor = Color.WhiteSmoke;
             dataGridView1.BorderStyle = BorderStyle.None;
 
-            MessageBox.Show("Tüm alternatif rotalar listelendi.");
+            MessageBox.Show("Tüm alternatif rotalar (süreye göre sıralı) listelendi.");
         }
 
         // ------------------------------------------------------------------------
@@ -412,5 +433,21 @@ namespace Prolab_4
             // globalDurakDict = null;
             // globalDurakList = null;
         }
+
+        private IOdemeYontemi OdemeYontemiOlustur()
+        {
+            if (nakitrbutton.Checked)
+                return new NakitOdeme();
+            else if (kentkartrbutton.Checked)
+                return new KentKartOdeme();
+            else if (kredikartırbutton.Checked)
+                return new KrediKartiOdeme();
+            else
+            {
+                MessageBox.Show("Lütfen bir ödeme yöntemi seçiniz.");
+                return null;
+            }
+        }
+
     }
 }
