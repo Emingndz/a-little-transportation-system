@@ -222,14 +222,6 @@ Bu proje [MIT Lisansı](LICENSE) altında lisanslanmıştır.
 
 ---
 
-## 👥 Ekip
-
-- **Proje Yöneticisi**: [İsim]
-- **Geliştirici**: [İsim]
-- **Test Mühendisi**: [İsim]
-
----
-
 ## 🙏 Teşekkürler
 
 - [GMap.NET](https://github.com/judero01col/GMap.NET) - Harita kütüphanesi
