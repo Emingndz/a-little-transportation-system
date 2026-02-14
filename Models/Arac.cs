@@ -8,13 +8,12 @@ namespace Prolab_4.Models
 {
     public abstract class Arac
     {
-        public string AracTuru { get; protected set; } // "bus", "tram", "taxi"
-        public double Ucret { get; protected set; } // Araçla seyahat ücreti (varsayılan)
-        public int TahminiSure { get; protected set; } // Dakika cinsinden
-        public double Mesafe { get; protected set; } // Kilometre cinsinden
+        public string AracTuru { get; protected set; } 
+        public double Ucret { get; protected set; }
+        public int TahminiSure { get; protected set; } 
+        public double Mesafe { get; protected set; } 
 
-        // Ortak davranışlar
-        // public abstract double UcretHesapla(double mesafe, bool indirimli = false);
+        
 
         public abstract double UcretHesapla(double mesafe, Yolcu yolcu);
 

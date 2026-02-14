@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Prolab_4.Core;
 
 namespace Prolab_4.Models
 {
@@ -13,7 +14,7 @@ namespace Prolab_4.Models
 
         public Tramvay(double mesafe, double ucret, int sure)
         {
-            AracTuru = "tram"; 
+            AracTuru = Constants.ARAC_TIPI_TRAMVAY; 
             this.Mesafe = mesafe;
             this.Ucret = ucret;
             this.TahminiSure = sure;
@@ -23,7 +24,7 @@ namespace Prolab_4.Models
 
         public override double UcretHesapla(double mesafe, Yolcu yolcu)
         {
-            // normal bilet = sabitUcret
+            
             double normal = sabitUcret;
             return yolcu.IndirimliUcret(sabitUcret);
         }

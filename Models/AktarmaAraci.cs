@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Prolab_4.Core;
 
 namespace Prolab_4.Models
 {
@@ -10,17 +11,16 @@ namespace Prolab_4.Models
     {
         public AktarmaAraci(int sure, double ucret)
         {
+            AracTuru = Constants.ARAC_TIPI_AKTARMA;
             this.Mesafe = 0;
             this.TahminiSure = sure;
             this.Ucret = ucret;
         }
 
-        // Imza: Arac'taki double UcretHesapla(double, Yolcu) ile aynı
+       
         public override double UcretHesapla(double mesafe, Yolcu yolcu)
         {
-            // Aktarma ücreti sabit ise mesafe = 0
-            // Yolcu tipine göre indirim (isterseniz):
-            // return yolcu.IndirimliUcret(Ucret);
+           
 
             return this.Ucret;
         }

@@ -7,40 +7,40 @@ using Prolab_4.Models;
 
 namespace Prolab_4.Services
 {
-    // 1. Ortak arayüz
+    
     public interface IOdemeYontemi
     {
         double UcretHesapla(Yolcu yolcu, Arac arac);
     }
 
-    // 2. Nakit Ödeme: herkes tam öder (indirim uygulanmaz)
+   
     public class NakitOdeme : IOdemeYontemi
     {
         public double UcretHesapla(Yolcu yolcu, Arac arac)
         {
-            return arac.Ucret; // indirim yok
+            return arac.Ucret; 
         }
     }
 
-    // 3. KentKart Ödeme: sisteme tanımlı indirimler geçerli
+    
     public class KentKartOdeme : IOdemeYontemi
     {
         public double UcretHesapla(Yolcu yolcu, Arac arac)
         {
-            return yolcu.IndirimliUcret(arac.Ucret); // normal sistem
+            return yolcu.IndirimliUcret(arac.Ucret);
         }
     }
 
-    // 4. Kredi Kartı Ödeme: herkes %25 daha fazla öder
+    
     public class KrediKartiOdeme : IOdemeYontemi
     {
         public double UcretHesapla(Yolcu yolcu, Arac arac)
         {
-            return arac.Ucret * 1.25; // %25 fazlası
+            return arac.Ucret * 1.25; 
         }
     }
 
-    // 5. Servis sınıfı (opsiyonel ama kodu temiz tutar)
+    
     public class OdemeServisi
     {
         private readonly IOdemeYontemi odemeYontemi;

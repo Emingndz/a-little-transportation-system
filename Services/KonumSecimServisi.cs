@@ -9,22 +9,21 @@ namespace Prolab_4.Services
 {
     public class KonumSecimServisi
     {
-        // Harita üzerinden seçilen gerçek durak (yakınsa)
+        
         public Durak BaslangicDurak { get; set; }
         public Durak HedefDurak { get; set; }
 
-        // Harita üzerinden seçilen durak dışı nokta
+        
         public PointLatLng? BaslangicKonumu { get; set; }
         public PointLatLng? HedefKonumu { get; set; }
 
-        // İçeride hangi tıklamanın başlangıç, hangisinin hedef olduğunu bilmek için
+        
         private bool baslangicSeciliyor = true;
 
-        // Bu metodu Form_Load veya constructor içinde çağırın:
-        // konumServisi.HaritaTiklamaBagla(gMapControl1);
+        
         public void HaritaTiklamaBagla(GMapControl harita)
         {
-            // Eski mouseClick bağlarını temizle, yenisini ekle
+            
             harita.MouseClick -= Harita_MouseClick;
             harita.MouseClick += Harita_MouseClick;
         }
@@ -34,14 +33,13 @@ namespace Prolab_4.Services
             if (e.Button == MouseButtons.Left)
             {
                 var gmap = sender as GMapControl;
-                // Haritada tıklanan enlem-boylam
                 var clicked = gmap.FromLocalToLatLng(e.X, e.Y);
 
-                // 1) Tüm durakların konumlarını al
+                
                 var ds = new DurakService();
                 var duraklar = ds.DurakKonumlariniGetir();
 
-                // 2) En yakın durağı bul
+               
                 double minMesafe = double.MaxValue;
                 Durak enYakinDurak = null;
 
@@ -55,16 +53,16 @@ namespace Prolab_4.Services
                     }
                 }
 
-                // Eşik değer (km). 0.02 => 20 metre. İstediğiniz gibi ayarlayabilirsiniz.
+                
                 double yakinlikEsigi = 0.02;
 
                 if (minMesafe < yakinlikEsigi && enYakinDurak != null)
                 {
-                    // Durağa yeterince yakın => Bu bir durak tıklaması demek
+                    
                     if (baslangicSeciliyor)
                     {
                         BaslangicDurak = enYakinDurak;
-                        BaslangicKonumu = null; // durak dışı iptal
+                        BaslangicKonumu = null;
                         MessageBox.Show($"Başlangıç olarak DURAK seçildi: {enYakinDurak.Ad} (yakınlık: {(minMesafe * 1000):F1} m)");
                     }
                     else
@@ -76,7 +74,6 @@ namespace Prolab_4.Services
                 }
                 else
                 {
-                    // Durağa uzak => userNode mantığı (durak dışı)
                     if (baslangicSeciliyor)
                     {
                         BaslangicDurak = null;
@@ -91,14 +88,14 @@ namespace Prolab_4.Services
                     }
                 }
 
-                baslangicSeciliyor = !baslangicSeciliyor; // Sonraki tıklama hedef olsun
+                baslangicSeciliyor = !baslangicSeciliyor; 
             }
         }
 
-        // Bu basit Haversine fonksiyonunu da DurakService'e ekleyin
+        
         private double MesafeHesapla(double lat1, double lon1, double lat2, double lon2)
         {
-            double R = 6371.0; // dünya yarıçapı km
+            double R = 6371.0; 
             double dLat = ToRadians(lat2 - lat1);
             double dLon = ToRadians(lon2 - lon1);
 

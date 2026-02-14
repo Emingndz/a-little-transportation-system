@@ -10,7 +10,7 @@ namespace Prolab_4.Models
     {
         public string Id { get; set; }
         public string Ad { get; set; }
-        public string Tur { get; set; }  // bus veya tram
+        public string Tur { get; set; }  
         public double Enlem { get; set; }
         public double Boylam { get; set; }
         public bool SonDurak { get; set; }

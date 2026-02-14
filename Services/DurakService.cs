@@ -14,7 +14,7 @@ namespace Prolab_4.Services
         private string jsonPath = @"Data/veriseti.json";
 
 
-        // 2. Haritada gösterilecek durakların konumlarını getirir (önceki kod)
+        
         public List<Durak> DurakKonumlariniGetir()
         {
             var durakListesi = new List<Durak>();
@@ -37,7 +37,7 @@ namespace Prolab_4.Services
             return durakListesi;
         }
 
-        // 3. Duraklar arası bağlantı grafını kurar (yeni eklenen yapı)
+        
         public List<Durak> DuraklariOkuVeGrafOlustur()
         {
             var durakListesi = new List<Durak>();
@@ -47,7 +47,7 @@ namespace Prolab_4.Services
             using JsonDocument doc = JsonDocument.Parse(jsonText);
             var duraklar = doc.RootElement.GetProperty("duraklar");
 
-            // Önce tüm durakları oluştur
+            
             foreach (var item in duraklar.EnumerateArray())
             {
                 var durak = new Durak
@@ -65,7 +65,7 @@ namespace Prolab_4.Services
                 durakDict[durak.Id] = durak;
             }
 
-            // Sonra bağlantıları kur
+            
             int index = 0;
             foreach (var item in duraklar.EnumerateArray())
             {
@@ -96,17 +96,15 @@ namespace Prolab_4.Services
                 }
                 if (item.TryGetProperty("transfer", out JsonElement transfer) && transfer.ValueKind == JsonValueKind.Object)
                 {
-                    // Mesela: "transferStopId", "transferSure", "transferUcret"
+                    
                     string transferStopId = transfer.GetProperty("transferStopId").GetString();
                     int transferSure = transfer.GetProperty("transferSure").GetInt32();
                     double transferUcret = transfer.GetProperty("transferUcret").GetDouble();
 
-                    // Aktarma da bir çeşit "Arac" sayılabilir.
-                    // İsterseniz "AktarmaAraci" diye özel bir sınıf oluşturabilirsiniz.
-                    // Veya basitçe "Otobus" gibi bir Arac:
+                    
                     Arac aktarmaAraci = new AktarmaAraci(transferSure, transferUcret);
 
-                    // Şimdi mevcut durağın "Baglantilar" listesine ekliyoruz.
+                    
                     mevcutDurak.Baglantilar.Add(new DurakBaglantisi
                     {
                         HedefDurakId = transferStopId,
@@ -121,17 +119,17 @@ namespace Prolab_4.Services
 
         public Durak AddUserNode(double userLat, double userLon, List<Durak> tumDuraklar)
         {
-            // 1) Yeni durak nesnesi (sanal durak)
+            
             var userNode = new Durak
             {
-                Id = "userNode_" + Guid.NewGuid().ToString("N"), // her seferinde eşsiz ID türetilmeli
+                Id = "userNode_" + Guid.NewGuid().ToString("N"), 
                 Ad = "KullaniciKonumu",
                 Enlem = userLat,
                 Boylam = userLon,
                 Baglantilar = new List<DurakBaglantisi>()
             };
 
-            // 2) Her durakla mesafe ölç, 3 km kuralına göre Arac oluştur
+           
             foreach (var durak in tumDuraklar)
             {
                 double mesafe = MesafeHesapla(userLat, userLon, durak.Enlem, durak.Boylam);
@@ -139,13 +137,13 @@ namespace Prolab_4.Services
                 Arac baglantiAraci ;
                 if (mesafe <= 3.0)
                 {
-                    // Yürüyüş
+                    
                     baglantiAraci = new Yurumek(mesafe);
                 }
                 else
                 {
-                    // Taksi
-                    baglantiAraci = new Taksi(mesafe); // 10 + 4 * d
+                    
+                    baglantiAraci = new Taksi(mesafe); 
                 }
 
                 userNode.Baglantilar.Add(new DurakBaglantisi
@@ -168,7 +166,7 @@ namespace Prolab_4.Services
 
         public double MesafeHesapla(double lat1, double lon1, double lat2, double lon2)
         {
-            double R = 6371.0; // dünya yarıçapı km
+            double R = 6371.0; 
             double dLat = ToRadians(lat2 - lat1);
             double dLon = ToRadians(lon2 - lon1);
 

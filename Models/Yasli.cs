@@ -3,15 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Prolab_4.Core;
 
 namespace Prolab_4.Models
 {
     public class Yasli : Yolcu
     {
-        public override string Tip => "65+";
-        // PDF'e göre, %100 ücretsiz yapmak isterseniz => 1.0
-        // Yarı yarıya isterseniz => 0.5
-        public override double IndirimOrani => 1.0;
+        public override string Tip => Constants.YOLCU_TIPI_YASLI;
+        
+        public override double IndirimOrani => Constants.YASLI_INDIRIM_ORANI;
     }
-
 }
